@@ -47,8 +47,9 @@ CAMLprim value ocaml_posix_clock_gettime_s_ns (value unit)
   struct timeval now;
   if (gettimeofday(&now, NULL) == -1) { caml_failwith("gettimeofday"); }
 
-  Store_field(time_s_ns, 0, Val_int(now.tv_sec));
-  Store_field(time_s_ns, 1, Val_long(now.tv_usec * 1000L));
+  Store_field(time_s_ns, 0, Val_int(now.tv_sec / 86400));
+  Store_field(time_s_ns, 1, caml_copy_int64((now.tv_sec % 86400) * 1000000000000L +
+                                            (now.tv_usec * 1000000L)));
 
   CAMLreturn (time_s_ns);
 }
@@ -90,8 +91,10 @@ CAMLprim value ocaml_posix_clock_gettime_s_ns (value unit)
   struct timespec now;
   if (clock_gettime(CLOCK_REALTIME, &now) == -1) { caml_failwith("clock_gettime(CLOCK_REALTIME, ..)"); }
 
-  Store_field(time_s_ns, 0, Val_int(now.tv_sec));
-  Store_field(time_s_ns, 1, Val_long(now.tv_nsec));
+
+  Store_field(time_s_ns, 0, Val_int(now.tv_sec / 86400));
+  Store_field(time_s_ns, 1, caml_copy_int64((now.tv_sec % 86400) * 1000000000000L +
+                                            (now.tv_nsec * 1000L)));
 
   CAMLreturn (time_s_ns);
 }
